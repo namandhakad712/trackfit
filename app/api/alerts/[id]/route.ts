@@ -36,7 +36,7 @@ export async function PATCH(
       .update(updateData)
       .eq('id', params.id)
       .select()
-      .single() as Promise<{ data: AlertData | null; error: any }>);
+      .single() as unknown as Promise<{ data: AlertData | null; error: any }>);
 
     if (error) {
       throw error;
