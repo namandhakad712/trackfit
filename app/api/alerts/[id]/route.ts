@@ -21,7 +21,7 @@ export async function PATCH(
 
     const { data: alert, error } = await supabase
       .from('alerts')
-      .update({ resolved })
+      .update({ resolved } as any)
       .eq('id', params.id)
       .select()
       .single();
