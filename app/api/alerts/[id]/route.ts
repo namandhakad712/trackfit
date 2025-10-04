@@ -28,12 +28,15 @@ export async function PATCH(
 
     const supabase = await createClient();
 
-    const { data: alert, error } = await supabase
+    // Type-safe update with explicit typing
+    const updateData: Partial<AlertData> = { resolved };
+    
+    const { data: alert, error } = await (supabase
       .from('alerts')
-      .update({ resolved } as { resolved: boolean })
+      .update(updateData)
       .eq('id', params.id)
-      .select<'*', AlertData>()
-      .single();
+      .select()
+      .single() as Promise<{ data: AlertData | null; error: any }>);
 
     if (error) {
       throw error;
