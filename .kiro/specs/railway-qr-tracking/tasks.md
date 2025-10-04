@@ -506,6 +506,7 @@
 
 
 
+
   - [x] 12.1 Build dashboard metrics calculation
 
     - Calculate total fittings count grouped by part type
