@@ -25,17 +25,19 @@ export default async function DashboardLayout({
     .eq('id', user.id)
     .single();
 
+  const userRole = profile?.role as 'depot_manager' | 'inspector' | 'admin' | undefined;
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar userRole={profile?.role} />
+      <Sidebar userRole={userRole} />
       <div className="lg:pl-64">
         <Header
           user={
             profile
               ? {
-                  name: profile.name,
+                  name: profile.name as string,
                   email: user.email || '',
-                  role: profile.role,
+                  role: profile.role as 'depot_manager' | 'inspector' | 'admin',
                 }
               : undefined
           }
