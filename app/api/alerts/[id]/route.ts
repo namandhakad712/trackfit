@@ -30,10 +30,10 @@ export async function PATCH(
 
     const { data: alert, error } = await supabase
       .from('alerts')
-      .update({ resolved })
+      .update({ resolved } as { resolved: boolean })
       .eq('id', params.id)
-      .select()
-      .single<AlertData>();
+      .select<'*', AlertData>()
+      .single();
 
     if (error) {
       throw error;
