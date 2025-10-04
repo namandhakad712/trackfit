@@ -1,0 +1,161 @@
+import { createClient } from '@/lib/supabase/server';
+import { fittingSchema } from '@/lib/validations/fitting';
+import { generateQRCode } from '@/lib/utils/qrGenerator';
+import { NextResponse } from 'next/server';
+import { addMonths } from 'date-fns';
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '50');
+    const part_type = searchParams.get('part_type');
+    const manufacturer = searchParams.get('manufacturer');
+    const status = searchParams.get('status');
+    const search = searchParams.get('search');
+
+    const supabase = await createClient();
+
+    // Build query
+    let query = supabase
+      .from('fittings')
+      .select('*', { count: 'exact' });
+
+    // Apply filters
+    if (part_type) {
+      query = query.eq('part_type', part_type);
+    }
+    if (manufacturer) {
+      query = query.ilike('manufacturer', `%${manufacturer}%`);
+    }
+    if (status) {
+      query = query.eq('status', status);
+    }
+    if (search) {
+      query = query.or(`qr_code.ilike.%${search}%,manufacturer.ilike.%${search}%,lot_number.ilike.%${search}%`);
+    }
+
+    // Apply pagination
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    query = query.range(from, to);
+
+    // Order by created_at desc
+    query = query.order('created_at', { ascending: false });
+
+    const { data, error, count } = await query;
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({
+      fittings: data || [],
+      total: count || 0,
+      page,
+      limit,
+      totalPages: Math.ceil((count || 0) / limit),
+    });
+  } catch (error) {
+    console.error('Error fetching fittings:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch fittings' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    // Validate request body
+    const validatedData = fittingSchema.parse(body);
+
+    const supabase = await createClient();
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
+    // Generate unique QR code
+    const qrCode = generateQRCode({
+      part_type: validatedData.part_type,
+      manufacturer: validatedData.manufacturer,
+      lot_number: validatedData.lot_number,
+      timestamp: Date.now(),
+    });
+
+    // Check for duplicate QR code
+    const { data: existing } = await supabase
+      .from('fittings')
+      .select('id')
+      .eq('qr_code', qrCode)
+      .single();
+
+    if (existing) {
+      return NextResponse.json(
+        { error: 'QR code already exists. Please try again.' },
+        { status: 400 }
+      );
+    }
+
+    // Calculate warranty expiry
+    const supplyDate = new Date(validatedData.supply_date);
+    const warrantyExpiry = addMonths(supplyDate, validatedData.warranty_months);
+
+    // Insert fitting
+    const { data: fitting, error } = await supabase
+      .from('fittings')
+      .insert({
+        qr_code: qrCode,
+        part_type: validatedData.part_type,
+        manufacturer: validatedData.manufacturer,
+        lot_number: validatedData.lot_number,
+        supply_date: validatedData.supply_date,
+        warranty_months: validatedData.warranty_months,
+        warranty_expiry: warrantyExpiry.toISOString().split('T')[0],
+        quantity: validatedData.quantity,
+        current_location: validatedData.current_location,
+        status: 'active',
+        created_by: user.id,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    // Trigger mock UDM sync (async, don't wait for completion)
+    fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/sync/udm`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ vendor_code: validatedData.manufacturer.substring(0, 10).toUpperCase().replace(/[^A-Z0-9]/g, '') }),
+    }).catch(err => console.error('UDM sync failed:', err));
+
+    return NextResponse.json({
+      fitting,
+      qr_code: qrCode,
+    });
+  } catch (error) {
+    console.error('Error creating fitting:', error);
+
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json(
+      { error: 'Failed to create fitting' },
+      { status: 500 }
+    );
+  }
+}
