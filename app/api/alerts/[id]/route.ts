@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-import type { Database } from '@/types/database';
 
 export async function PATCH(
   request: Request,
@@ -21,7 +20,7 @@ export async function PATCH(
 
     const { data: alert, error } = await supabase
       .from('alerts')
-      .update<Database['public']['Tables']['alerts']['Update']>({ resolved })
+      .update({ resolved })
       .eq('id', params.id)
       .select()
       .single();
