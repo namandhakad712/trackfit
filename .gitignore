@@ -69,12 +69,21 @@ QWEN.md
 
 # AI Generated Files
 *_SUMMARY.md
+*SUMMARY.md
 TASK_*.md
 PROJECT_*.md
 DEPLOYMENT_*.md
+TYPESCRIPT_*.md
+FINAL_*.md
 temp.md
+temp.*
 notes.md
 scratch.md
+QWEN.md
+PLAN.md
+PLAN.MD
+*.plan
+*.notes
 
 # Logs
 logs
