@@ -2,6 +2,22 @@ import { createClient } from '@/lib/supabase/server';
 import { runAlertEngine, createAlerts, type AlertContext } from '@/lib/ai/alertEngine';
 import { NextResponse } from 'next/server';
 
+type FittingData = {
+  id: string;
+  qr_code: string;
+  part_type: string;
+  manufacturer: string;
+  lot_number: string;
+  warranty_expiry: string;
+  created_at: string;
+};
+
+type InspectionData = {
+  id: string;
+  status: string;
+  timestamp: string;
+};
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -21,7 +37,7 @@ export async function POST(request: Request) {
       .from('fittings')
       .select('*')
       .eq('id', fitting_id)
-      .single();
+      .single<FittingData>();
 
     if (fittingError || !fitting) {
       return NextResponse.json(
@@ -31,13 +47,13 @@ export async function POST(request: Request) {
     }
 
     // Fetch current inspection if provided
-    let currentInspection = null;
+    let currentInspection: InspectionData | null = null;
     if (inspection_id) {
       const { data } = await supabase
         .from('inspections')
         .select('*')
         .eq('id', inspection_id)
-        .single();
+        .single<InspectionData>();
       currentInspection = data;
     }
 
@@ -60,7 +76,7 @@ export async function POST(request: Request) {
         status,
         fitting:fittings!inner(lot_number)
       `)
-      .eq('fitting.lot_number', fitting.lot_number);
+      .eq('fittings.lot_number', fitting.lot_number);
 
     // Fetch vendor data
     const { data: vendor } = await supabase

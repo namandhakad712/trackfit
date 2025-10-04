@@ -1,6 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
+type AlertData = {
+  id: string;
+  fitting_id: string;
+  alert_type: string;
+  severity: string;
+  message: string;
+  resolved: boolean;
+  created_at: string;
+};
+
 export async function PATCH(
   request: Request,
   { params }: { params: { id: string } }
@@ -23,7 +33,7 @@ export async function PATCH(
       .update({ resolved })
       .eq('id', params.id)
       .select()
-      .single();
+      .single<AlertData>();
 
     if (error) {
       throw error;
