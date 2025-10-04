@@ -7,7 +7,7 @@
 Property 'role' does not exist on type 'never'
 ```
 
-**Solution:** Added explicit type casting for the profile data from Supabase query.
+**Solution:** Added explicit TypeScript type definition for the Supabase query result.
 
 ## Changes Made
 
@@ -26,16 +26,24 @@ const { data: profile } = await supabase
 
 **After:**
 ```typescript
+type UserProfile = {
+  name: string;
+  role: 'depot_manager' | 'inspector' | 'admin';
+  depot_location: string | null;
+};
+
 const { data: profile } = await supabase
   .from('users')
   .select('name, role, depot_location')
   .eq('id', user.id)
-  .single();
+  .single<UserProfile>();
 
-const userRole = profile?.role as 'depot_manager' | 'inspector' | 'admin' | undefined;
+const userRole = profile?.role;
 
 <Sidebar userRole={userRole} />
 ```
+
+**Key Change:** Added `.single<UserProfile>()` to explicitly type the Supabase query result.
 
 ## Deployment Checklist
 

@@ -3,6 +3,12 @@ import { redirect } from 'next/navigation';
 import { Header } from '@/components/dashboard/Header';
 import { Sidebar } from '@/components/dashboard/Sidebar';
 
+type UserProfile = {
+  name: string;
+  role: 'depot_manager' | 'inspector' | 'admin';
+  depot_location: string | null;
+};
+
 export default async function DashboardLayout({
   children,
 }: {
@@ -23,9 +29,9 @@ export default async function DashboardLayout({
     .from('users')
     .select('name, role, depot_location')
     .eq('id', user.id)
-    .single();
+    .single<UserProfile>();
 
-  const userRole = profile?.role as 'depot_manager' | 'inspector' | 'admin' | undefined;
+  const userRole = profile?.role;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -35,9 +41,9 @@ export default async function DashboardLayout({
           user={
             profile
               ? {
-                  name: profile.name as string,
+                  name: profile.name,
                   email: user.email || '',
-                  role: profile.role as 'depot_manager' | 'inspector' | 'admin',
+                  role: profile.role,
                 }
               : undefined
           }
