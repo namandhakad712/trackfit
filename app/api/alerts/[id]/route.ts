@@ -1,15 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
-
-type AlertData = {
-  id: string;
-  fitting_id: string;
-  alert_type: string;
-  severity: string;
-  message: string;
-  resolved: boolean;
-  created_at: string;
-};
+import type { Alert } from '@/types';
 
 export async function PATCH(
   request: Request,
@@ -28,15 +19,12 @@ export async function PATCH(
 
     const supabase = await createClient();
 
-    // Type-safe update with explicit typing
-    const updateData: Partial<AlertData> = { resolved };
-    
-    const { data: alert, error } = await (supabase
+    const { data: alert, error } = await supabase
       .from('alerts')
-      .update(updateData)
+      .update({ resolved })
       .eq('id', params.id)
       .select()
-      .single() as unknown as Promise<{ data: AlertData | null; error: any }>);
+      .single();
 
     if (error) {
       throw error;
