@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { SupabaseConnectionStatus } from '@/components/ui/SupabaseConnectionStatus';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -120,6 +121,7 @@ export default function LoginPage() {
           </CardFooter>
         </form>
       </Card>
+      <SupabaseConnectionStatus position="top-right" />
     </div>
   );
 }

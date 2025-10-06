@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { INSPECTION_TYPES, INSPECTION_STATUSES, MAX_IMAGES_PER_INSPECTION, MAX_IMAGE_SIZE_MB } from '@/lib/constants';
 import { MapPin, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { OlaMapLocationSelector } from '@/components/maps/OlaMapLocationSelector';
 
 interface InspectionFormProps {
   fittingId: string;
@@ -21,9 +22,6 @@ interface InspectionFormProps {
 
 export function InspectionForm({ fittingId, onSuccess, onError }: InspectionFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [gpsLocation, setGpsLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [gpsError, setGpsError] = useState<string>('');
-  const [isCapturingGPS, setIsCapturingGPS] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploadError, setUploadError] = useState<string>('');
@@ -44,42 +42,10 @@ export function InspectionForm({ fittingId, onSuccess, onError }: InspectionForm
   const notes = watch('notes');
   const notesLength = notes?.length || 0;
 
-  // Auto-capture GPS on mount
-  useEffect(() => {
-    captureGPS();
-  }, []);
-
-  const captureGPS = async () => {
-    if (!navigator.geolocation) {
-      setGpsError('Geolocation is not supported by your browser');
-      return;
-    }
-
-    setIsCapturingGPS(true);
-    setGpsError('');
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const location = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-        setGpsLocation(location);
-        setValue('gps_latitude', location.latitude);
-        setValue('gps_longitude', location.longitude);
-        setIsCapturingGPS(false);
-      },
-      (error) => {
-        console.error('GPS error:', error);
-        setGpsError('Unable to get location. You can enter it manually if needed.');
-        setIsCapturingGPS(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
+  // Handle location selection from the map
+  const handleLocationSelect = (location: { latitude: number; longitude: number; address?: string }) => {
+    setValue('gps_latitude', location.latitude);
+    setValue('gps_longitude', location.longitude);
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,48 +190,14 @@ export function InspectionForm({ fittingId, onSuccess, onError }: InspectionForm
             </div>
           </div>
 
-          {/* GPS Location */}
-          <div className="space-y-2">
-            <Label>GPS Location</Label>
-            <div className="flex items-center gap-2">
-              {isCapturingGPS ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                  Capturing location...
-                </div>
-              ) : gpsLocation ? (
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {gpsLocation.latitude.toFixed(6)}, {gpsLocation.longitude.toFixed(6)}
-                  </Badge>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={captureGPS}
-                    disabled={isSubmitting}
-                  >
-                    Recapture
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={captureGPS}
-                  disabled={isSubmitting}
-                >
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Capture Location
-                </Button>
-              )}
-            </div>
-            {gpsError && (
-              <p className="text-sm text-amber-600">{gpsError}</p>
-            )}
-          </div>
+          {/* GPS Location with Map */}
+          <OlaMapLocationSelector 
+            onLocationSelect={handleLocationSelect}
+            initialLocation={watch('gps_latitude') !== undefined && watch('gps_longitude') !== undefined 
+              ? { latitude: watch('gps_latitude'), longitude: watch('gps_longitude') } 
+              : undefined}
+            disabled={isSubmitting}
+          />
 
           {/* Notes */}
           <div className="space-y-2">

@@ -1,19 +1,23 @@
-1 line selected
-Find in logs
-CtrlF
-Running build in Washington, D.C., USA (East) – iad1
-Build machine configuration: 2 cores, 8 GB
-Cloning github.com/namandhakad712/trackfit (Branch: main, Commit: e06305b)
-Previous build caches not available
-Cloning completed: 410.000ms
-Running "vercel build"
-Vercel CLI 48.2.0
-Installing dependencies...
-npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
-npm warn deprecated @supabase/auth-helpers-shared@0.6.3: This package is now deprecated - please use the @supabase/ssr package instead.
-npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
-npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
-npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
-npm warn deprecated @supabase/auth-helpers-nextjs@0.8.7: This package is now deprecated - please use the @supabase/ssr package instead.
-npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+express-utils.js:18 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/browser/css/fonts/AdobeClean-Regular.otf
+express-utils.js:18 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/browser/css/fonts/AdobeClean-Bold.otf
+index.iife.js:1 content script loaded
+VM36 contentscript.js:1 Uncaught SyntaxError: Identifier 'Sft' has already been declared (at VM36 contentscript.js:1:1)
+www.google-analytics.com/g/collect?v=2&tid=G-6V6V4N23GF&npa=1&dma=1&cid=c1304228-a635-4053-8098-ad5bedef82d2&ul=en-us&uafvl=youtube%7C17.3.7&uamb=0&uam=5.0+%28Windows+NT+10.0%3B+Win64%3B+x64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F141.0.0.0+Safari%2F537.36&uap=Win32&uapv=Mozilla%2F5.0+%28Windows+NT+10.0%3B+Win64%3B+x64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F141.0.0.0+Safari%2F537.36&uaw=1536&are=1&frm=1&pscdl=noapi&sct=19&seg=1&dl=youtube.app%2Fpage_view&dt=page_view&en=page_view:1  Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+favicon.ico:1  Failed to load resource: the server responded with a status of 404 ()
+api/auth/login:1  Failed to load resource: the server responded with a status of 404 ()
+contentscript.js:1 Uncaught SyntaxError: Identifier 'Sft' has already been declared (at contentscript.js:1:1)
+page-da9dba40f107a1b2.js:1  POST https://trackfit-sih.vercel.app/api/auth/signup 500 (Internal Server Error)
+_ @ page-da9dba40f107a1b2.js:1
+(anonymous) @ 640-678f9ab0947026ed.js:1
+await in (anonymous)
+a_ @ fd9d1056-fb0b8c8f080b81a3.js:1
+aR @ fd9d1056-fb0b8c8f080b81a3.js:1
+(anonymous) @ fd9d1056-fb0b8c8f080b81a3.js:1
+sF @ fd9d1056-fb0b8c8f080b81a3.js:1
+sM @ fd9d1056-fb0b8c8f080b81a3.js:1
+(anonymous) @ fd9d1056-fb0b8c8f080b81a3.js:1
+o4 @ fd9d1056-fb0b8c8f080b81a3.js:1
+iV @ fd9d1056-fb0b8c8f080b81a3.js:1
+sU @ fd9d1056-fb0b8c8f080b81a3.js:1
+uR @ fd9d1056-fb0b8c8f080b81a3.js:1
+uM @ fd9d1056-fb0b8c8f080b81a3.js:1

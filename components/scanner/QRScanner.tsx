@@ -22,9 +22,11 @@ export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
 
   useEffect(() => {
     return () => {
-      // Cleanup on unmount
-      if (scannerRef.current && isScanning) {
-        stopScanning();
+      // Cleanup on unmount - stop scanner if it exists regardless of scanning state
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(console.error);
+        scannerRef.current.clear();
+        scannerRef.current = null;
       }
     };
   }, []);
@@ -54,7 +56,12 @@ export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
         config,
         (decodedText) => {
           // Success callback
-          handleScanSuccess(decodedText);
+          try {
+            handleScanSuccess(decodedText);
+          } catch (err) {
+            console.error('Error in scan success handler:', err);
+            onScanError?.(err instanceof Error ? err.message : 'Error processing scan');
+          }
         },
         (errorMessage) => {
           // Error callback (can be ignored for continuous scanning)
@@ -80,13 +87,13 @@ export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
         setError('Failed to start camera. Please try again.');
       }
       
-      onScanError?.(error);
+      onScanError?.(err instanceof Error ? err.message : 'Failed to start camera');
     }
   };
 
   const stopScanning = async () => {
     try {
-      if (scannerRef.current && isScanning) {
+      if (scannerRef.current) {
         await scannerRef.current.stop();
         scannerRef.current.clear();
         scannerRef.current = null;
@@ -119,8 +126,12 @@ export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
     playSuccessSound();
 
     // Vibrate on mobile (optional)
-    if ('vibrate' in navigator) {
-      navigator.vibrate(200);
+    if (navigator.vibrate) {
+      try {
+        navigator.vibrate(200);
+      } catch (err) {
+        // Ignore vibrate errors
+      }
     }
 
     // Stop scanning and call success callback
@@ -130,6 +141,11 @@ export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
 
   const playSuccessSound = () => {
     try {
+      // Check if Web Audio API is supported
+      if (!window.AudioContext && !(window as any).webkitAudioContext) {
+        return;
+      }
+      
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();

@@ -12,9 +12,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { USER_ROLES } from '@/lib/constants';
+import { SupabaseConnectionStatus } from '@/components/ui/SupabaseConnectionStatus';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SignupPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [error, setError] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -49,9 +52,18 @@ export default function SignupPage() {
         throw new Error(result.error || 'Signup failed');
       }
 
-      // Redirect to dashboard after successful signup
-      router.push('/dashboard');
-      router.refresh();
+      // Show toast notification about verification email
+      toast({
+        title: 'Verification Email Sent',
+        description: `A verification email has been sent to ${data.email}. Please check your inbox and follow the instructions to activate your account.`,
+        duration: 5000,
+      });
+
+      // Redirect to login page after a short delay to allow toast to show
+      setTimeout(() => {
+        router.push('/login');
+        router.refresh();
+      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -206,6 +218,7 @@ export default function SignupPage() {
           </CardFooter>
         </form>
       </Card>
+      <SupabaseConnectionStatus position="top-right" />
     </div>
   );
 }

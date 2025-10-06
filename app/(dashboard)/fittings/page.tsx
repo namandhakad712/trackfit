@@ -156,7 +156,6 @@ export default function FittingsPage() {
                 <SelectValue placeholder="All part types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All part types</SelectItem>
                 {PART_TYPES.map((type) => (
                   <SelectItem key={type.value} value={type.value}>
                     {type.label}
@@ -169,7 +168,6 @@ export default function FittingsPage() {
                 <SelectValue placeholder="All statuses" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All statuses</SelectItem>
                 {FITTING_STATUSES.map((status) => (
                   <SelectItem key={status.value} value={status.value}>
                     {status.label}

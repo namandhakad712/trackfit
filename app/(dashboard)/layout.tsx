@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/dashboard/Header';
 import { Sidebar } from '@/components/dashboard/Sidebar';
+import { SupabaseConnectionStatus } from '@/components/ui/SupabaseConnectionStatus';
 
 type UserProfile = {
   name: string;
@@ -50,6 +51,7 @@ export default async function DashboardLayout({
         />
         <main className="p-6">{children}</main>
       </div>
+      <SupabaseConnectionStatus />
     </div>
   );
 }

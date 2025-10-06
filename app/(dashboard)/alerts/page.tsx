@@ -29,8 +29,8 @@ export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [severityFilter, setSeverityFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [resolvedFilter, setResolvedFilter] = useState('false');
 
   useEffect(() => {
@@ -42,9 +42,9 @@ export default function AlertsPage() {
       setIsLoading(true);
       const params = new URLSearchParams();
       
-      if (severityFilter) params.append('severity', severityFilter);
-      if (typeFilter) params.append('alert_type', typeFilter);
-      if (resolvedFilter) params.append('resolved', resolvedFilter);
+      if (severityFilter && severityFilter !== 'all') params.append('severity', severityFilter);
+      if (typeFilter && typeFilter !== 'all') params.append('alert_type', typeFilter);
+      if (resolvedFilter && resolvedFilter !== 'all') params.append('resolved', resolvedFilter);
 
       const response = await fetch(`/api/alerts?${params}`);
       const data = await response.json();
@@ -210,7 +210,7 @@ export default function AlertsPage() {
                   <SelectValue placeholder="All severities" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All severities</SelectItem>
+                  <SelectItem value="all">All severities</SelectItem>
                   <SelectItem value="critical">Critical</SelectItem>
                   <SelectItem value="high">High</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
@@ -225,7 +225,7 @@ export default function AlertsPage() {
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All types</SelectItem>
+                  <SelectItem value="all">All types</SelectItem>
                   <SelectItem value="warranty_expiry">Warranty Expiry</SelectItem>
                   <SelectItem value="vendor_quality">Vendor Quality</SelectItem>
                   <SelectItem value="failure_prediction">Failure Prediction</SelectItem>
@@ -242,7 +242,7 @@ export default function AlertsPage() {
                 <SelectContent>
                   <SelectItem value="false">Unresolved</SelectItem>
                   <SelectItem value="true">Resolved</SelectItem>
-                  <SelectItem value="">All</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
                 </SelectContent>
               </Select>
             </div>

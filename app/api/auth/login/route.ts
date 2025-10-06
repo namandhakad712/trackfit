@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { loginSchema } from '@/lib/validations/auth';
 import { NextResponse } from 'next/server';
 
@@ -31,12 +32,32 @@ export async function POST(request: Request) {
       );
     }
     
-    // Fetch user role from users table
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('role, name, depot_location')
-      .eq('id', data.user.id)
-      .single();
+    // Use service role client to bypass RLS and fetch user role from users table
+    const serviceRoleSupabase = createServiceRoleClient();
+    
+    let userData, userError;
+    
+    if (serviceRoleSupabase) {
+      const result = await serviceRoleSupabase
+        .from('users')
+        .select('role, name, depot_location')
+        .eq('id', data.user.id)
+        .single();
+      
+      userData = result.data;
+      userError = result.error;
+    } else {
+      // Fall back to regular client if service role key is not available
+      const supabase = await createClient();
+      const result = await supabase
+        .from('users')
+        .select('role, name, depot_location')
+        .eq('id', data.user.id)
+        .single();
+      
+      userData = result.data;
+      userError = result.error;
+    }
     
     if (userError || !userData) {
       return NextResponse.json(

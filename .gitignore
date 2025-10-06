@@ -63,6 +63,9 @@ next-env.d.ts
 .github/copilot/
 .codeium/
 .tabnine/
+.clinerules
+.qwen
+.cline
 .kite/
 QWEN.md
 .windsurf/

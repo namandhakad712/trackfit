@@ -18,8 +18,8 @@ export default function UnauthorizedPage() {
         </CardHeader>
         <CardContent className="text-center text-sm text-muted-foreground">
           <p>
-            This page requires specific permissions that your account doesn't have.
-            Please contact your administrator if you believe this is an error.
+            This page requires administrative privileges that your account doesn't have.
+            Please contact your system administrator if you believe this is an error.
           </p>
         </CardContent>
         <CardFooter className="flex justify-center">

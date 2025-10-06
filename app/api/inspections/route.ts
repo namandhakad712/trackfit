@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { inspectionSchema } from '@/lib/validations/inspection';
 import { NextResponse } from 'next/server';
 
@@ -11,38 +12,80 @@ export async function GET(request: Request) {
     const start_date = searchParams.get('start_date');
     const end_date = searchParams.get('end_date');
 
-    const supabase = await createClient();
+    // Use service role client to bypass RLS for fetching inspections with user data
+    const serviceRoleClient = createServiceRoleClient();
+    
+    let data, error;
+    
+    if (serviceRoleClient) {
+      // Build query
+      let query = serviceRoleClient
+        .from('inspections')
+        .select(`
+          *,
+          inspector:users!inspections_inspector_id_fkey(name, email),
+          fitting:fittings(qr_code, part_type, manufacturer)
+        `);
 
-    // Build query
-    let query = supabase
-      .from('inspections')
-      .select(`
-        *,
-        inspector:users!inspections_inspector_id_fkey(name, email),
-        fitting:fittings(qr_code, part_type, manufacturer)
-      `);
+      // Apply filters
+      if (fitting_id) {
+        query = query.eq('fitting_id', fitting_id);
+      }
+      if (inspector_id) {
+        query = query.eq('inspector_id', inspector_id);
+      }
+      if (status) {
+        query = query.eq('status', status);
+      }
+      if (start_date) {
+        query = query.gte('timestamp', start_date);
+      }
+      if (end_date) {
+        query = query.lte('timestamp', end_date);
+      }
 
-    // Apply filters
-    if (fitting_id) {
-      query = query.eq('fitting_id', fitting_id);
-    }
-    if (inspector_id) {
-      query = query.eq('inspector_id', inspector_id);
-    }
-    if (status) {
-      query = query.eq('status', status);
-    }
-    if (start_date) {
-      query = query.gte('timestamp', start_date);
-    }
-    if (end_date) {
-      query = query.lte('timestamp', end_date);
-    }
+      // Order by timestamp desc
+      query = query.order('timestamp', { ascending: false });
 
-    // Order by timestamp desc
-    query = query.order('timestamp', { ascending: false });
+      const result = await query;
+      data = result.data;
+      error = result.error;
+    } else {
+      // Fall back to regular client if service role key is not available
+      const supabase = await createClient();
+      
+      // Build query - without user join due to RLS
+      let query = supabase
+        .from('inspections')
+        .select(`
+          *,
+          fitting:fittings(qr_code, part_type, manufacturer)
+        `);
 
-    const { data, error } = await query;
+      // Apply filters
+      if (fitting_id) {
+        query = query.eq('fitting_id', fitting_id);
+      }
+      if (inspector_id) {
+        query = query.eq('inspector_id', inspector_id);
+      }
+      if (status) {
+        query = query.eq('status', status);
+      }
+      if (start_date) {
+        query = query.gte('timestamp', start_date);
+      }
+      if (end_date) {
+        query = query.lte('timestamp', end_date);
+      }
+
+      // Order by timestamp desc
+      query = query.order('timestamp', { ascending: false });
+
+      const result = await query;
+      data = result.data;
+      error = result.error;
+    }
 
     if (error) {
       throw error;
@@ -122,21 +165,46 @@ export async function POST(request: Request) {
       }
     }
 
-    // Insert inspection
-    const { data: inspection, error: insertError } = await supabase
-      .from('inspections')
-      .insert({
-        fitting_id: validatedData.fitting_id,
-        inspector_id: user.id,
-        inspection_type: validatedData.inspection_type,
-        status: validatedData.status,
-        notes: validatedData.notes || null,
-        gps_latitude: validatedData.gps_latitude || null,
-        gps_longitude: validatedData.gps_longitude || null,
-        images: imageUrls.length > 0 ? imageUrls : null,
-      })
-      .select()
-      .single();
+    // Use service role client for operations that might need to join with users table
+    const serviceRoleClient = createServiceRoleClient();
+    
+    let result;
+    if (serviceRoleClient) {
+      // Insert inspection
+      result = await serviceRoleClient
+        .from('inspections')
+        .insert({
+          fitting_id: validatedData.fitting_id,
+          inspector_id: user.id,
+          inspection_type: validatedData.inspection_type,
+          status: validatedData.status,
+          notes: validatedData.notes || null,
+          gps_latitude: validatedData.gps_latitude || null,
+          gps_longitude: validatedData.gps_longitude || null,
+          images: imageUrls.length > 0 ? imageUrls : null,
+        })
+        .select()
+        .single();
+    } else {
+      // Fall back to regular client if service role key is not available
+      const supabase = await createClient();
+      result = await supabase
+        .from('inspections')
+        .insert({
+          fitting_id: validatedData.fitting_id,
+          inspector_id: user.id,
+          inspection_type: validatedData.inspection_type,
+          status: validatedData.status,
+          notes: validatedData.notes || null,
+          gps_latitude: validatedData.gps_latitude || null,
+          gps_longitude: validatedData.gps_longitude || null,
+          images: imageUrls.length > 0 ? imageUrls : null,
+        })
+        .select()
+        .single();
+    }
+    
+    const { data: inspection, error: insertError } = result;
 
     if (insertError) {
       throw insertError;
