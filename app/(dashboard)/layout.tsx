@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { redirect } from 'next/navigation';
 import { Header } from '@/components/dashboard/Header';
 import { Sidebar } from '@/components/dashboard/Sidebar';
@@ -25,18 +26,37 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
-  // Fetch user profile
-  const { data: profile } = await supabase
+  // Try to fetch user profile with regular client first
+  let { data: profile, error: profileError } = await supabase
     .from('users')
     .select('name, role, depot_location')
     .eq('id', user.id)
     .single<UserProfile>();
 
+  // If regular client fails, try with service role client to bypass RLS
+  if (profileError || !profile) {
+    const serviceRoleSupabase = createServiceRoleClient();
+    
+    if (serviceRoleSupabase) {
+      const result = await serviceRoleSupabase
+        .from('users')
+        .select('name, role, depot_location')
+        .eq('id', user.id)
+        .single<UserProfile>();
+      
+      profile = result.data;
+      profileError = result.error;
+    }
+  }
+
   const userRole = profile?.role;
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar userRole={userRole} />
+      <Sidebar 
+        userRole={userRole} 
+        userName={profile?.name}
+      />
       <div className="lg:pl-64">
         <Header
           user={

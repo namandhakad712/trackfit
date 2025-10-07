@@ -81,6 +81,19 @@ CREATE TABLE IF NOT EXISTS alerts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Fitting Overlays Table
+CREATE TABLE IF NOT EXISTS fitting_overlays (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  fitting_type TEXT NOT NULL CHECK (fitting_type IN ('elastic_rail_clip', 'rail_pad', 'liner', 'sleeper')),
+  part_type TEXT NOT NULL,
+  overlay_image_url TEXT NOT NULL,
+  default_size INTEGER DEFAULT 32,
+  default_rotation INTEGER DEFAULT 0,
+  category TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Sync Logs Table
 CREATE TABLE IF NOT EXISTS sync_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -123,6 +136,11 @@ CREATE INDEX IF NOT EXISTS idx_alerts_created_at ON alerts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_alerts_resolved_severity ON alerts(resolved, severity) WHERE resolved = FALSE;
 CREATE INDEX IF NOT EXISTS idx_alerts_fitting_resolved ON alerts(fitting_id, resolved);
 CREATE INDEX IF NOT EXISTS idx_alerts_type ON alerts(alert_type);
+
+-- Fitting overlays indexes
+CREATE INDEX IF NOT EXISTS idx_fitting_overlays_fitting_type ON fitting_overlays(fitting_type);
+CREATE INDEX IF NOT EXISTS idx_fitting_overlays_part_type ON fitting_overlays(part_type);
+CREATE INDEX IF NOT EXISTS idx_fitting_overlays_category ON fitting_overlays(category);
 
 -- Vendors indexes
 CREATE INDEX IF NOT EXISTS idx_vendors_vendor_code ON vendors(vendor_code);

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard,
@@ -12,12 +12,18 @@ import {
   Users,
   Menu,
   X,
+  LogOut,
+  Shield,
+  Warehouse,
+  ClipboardCheck,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 interface SidebarProps {
   userRole?: string;
+  userName?: string;
 }
 
 const navigation = [
@@ -59,13 +65,62 @@ const navigation = [
   },
 ];
 
-export function Sidebar({ userRole }: SidebarProps) {
+export function Sidebar({ userRole, userName }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const filteredNavigation = navigation.filter((item) =>
     userRole ? item.roles.includes(userRole) : true
   );
+
+  const getRoleIcon = () => {
+    switch (userRole) {
+      case 'admin':
+        return Shield;
+      case 'depot_manager':
+        return Warehouse;
+      case 'inspector':
+        return ClipboardCheck;
+      default:
+        return Shield;
+    }
+  };
+
+  const getRoleLabel = () => {
+    switch (userRole) {
+      case 'admin':
+        return 'Admin';
+      case 'depot_manager':
+        return 'Depot Manager';
+      case 'inspector':
+        return 'Inspector';
+      default:
+        return 'User';
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        router.push('/login');
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+  const RoleIcon = getRoleIcon();
 
   return (
     <>
@@ -122,8 +177,36 @@ export function Sidebar({ userRole }: SidebarProps) {
             })}
           </nav>
 
-          {/* Footer */}
-          <div className="p-4 border-t">
+          {/* User Role & Logout */}
+          <div className="p-4 border-t space-y-3">
+            {(userRole || userName) && (
+              <>
+                <div className="flex items-center gap-3 px-3 py-2 bg-accent/50 rounded-md">
+                  <RoleIcon className="h-5 w-5 text-primary" />
+                  <div className="flex-1 min-w-0">
+                    {userName ? (
+                      <p className="text-sm font-medium truncate">{userName}</p>
+                    ) : (
+                      <p className="text-sm font-medium text-muted-foreground">User</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">{getRoleLabel()}</p>
+                  </div>
+                </div>
+                <Separator />
+              </>
+            )}
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </Button>
+            
             <p className="text-xs text-muted-foreground text-center">
               Indian Railways © 2025
             </p>
