@@ -1,23 +1,45 @@
-express-utils.js:18 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/browser/css/fonts/AdobeClean-Regular.otf
-express-utils.js:18 [Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading: chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/browser/css/fonts/AdobeClean-Bold.otf
-index.iife.js:1 content script loaded
-VM36 contentscript.js:1 Uncaught SyntaxError: Identifier 'Sft' has already been declared (at VM36 contentscript.js:1:1)
-www.google-analytics.com/g/collect?v=2&tid=G-6V6V4N23GF&npa=1&dma=1&cid=c1304228-a635-4053-8098-ad5bedef82d2&ul=en-us&uafvl=youtube%7C17.3.7&uamb=0&uam=5.0+%28Windows+NT+10.0%3B+Win64%3B+x64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F141.0.0.0+Safari%2F537.36&uap=Win32&uapv=Mozilla%2F5.0+%28Windows+NT+10.0%3B+Win64%3B+x64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F141.0.0.0+Safari%2F537.36&uaw=1536&are=1&frm=1&pscdl=noapi&sct=19&seg=1&dl=youtube.app%2Fpage_view&dt=page_view&en=page_view:1  Failed to load resource: net::ERR_NAME_NOT_RESOLVED
-favicon.ico:1  Failed to load resource: the server responded with a status of 404 ()
-api/auth/login:1  Failed to load resource: the server responded with a status of 404 ()
-contentscript.js:1 Uncaught SyntaxError: Identifier 'Sft' has already been declared (at contentscript.js:1:1)
-page-da9dba40f107a1b2.js:1  POST https://trackfit-sih.vercel.app/api/auth/signup 500 (Internal Server Error)
-_ @ page-da9dba40f107a1b2.js:1
-(anonymous) @ 640-678f9ab0947026ed.js:1
-await in (anonymous)
-a_ @ fd9d1056-fb0b8c8f080b81a3.js:1
-aR @ fd9d1056-fb0b8c8f080b81a3.js:1
-(anonymous) @ fd9d1056-fb0b8c8f080b81a3.js:1
-sF @ fd9d1056-fb0b8c8f080b81a3.js:1
-sM @ fd9d1056-fb0b8c8f080b81a3.js:1
-(anonymous) @ fd9d1056-fb0b8c8f080b81a3.js:1
-o4 @ fd9d1056-fb0b8c8f080b81a3.js:1
-iV @ fd9d1056-fb0b8c8f080b81a3.js:1
-sU @ fd9d1056-fb0b8c8f080b81a3.js:1
-uR @ fd9d1056-fb0b8c8f080b81a3.js:1
-uM @ fd9d1056-fb0b8c8f080b81a3.js:1
+23:40:07.028 Running build in Washington, D.C., USA (East) – iad1
+23:40:07.028 Build machine configuration: 2 cores, 8 GB
+23:40:07.059 Cloning github.com/namandhakad712/trackfit (Branch: main, Commit: bca5256)
+23:40:07.494 Cloning completed: 434.000ms
+23:40:08.406 Restored build cache from previous deployment (4t2Ep3C2MEQnUYHo6V7LNC76gCQ8)
+23:40:09.662 Running "vercel build"
+23:40:10.067 Vercel CLI 48.2.0
+23:40:10.416 Installing dependencies...
+23:40:12.249 
+23:40:12.250 added 4 packages in 2s
+23:40:12.250 
+23:40:12.250 159 packages are looking for funding
+23:40:12.250   run `npm fund` for details
+23:40:12.281 Detected Next.js version: 14.2.33
+23:40:12.286 Running "npm run build"
+23:40:12.418 
+23:40:12.418 > railtrack-qr@0.1.0 build
+23:40:12.418 > next build
+23:40:12.418 
+23:40:13.162   ▲ Next.js 14.2.33
+23:40:13.163 
+23:40:13.219    Creating an optimized production build ...
+23:40:25.867 Failed to compile.
+23:40:25.867 
+23:40:25.868 ./app/(dashboard)/test-user/page.tsx
+23:40:25.868 Error: 
+23:40:25.868   [31mx[0m Unexpected token `div`. Expected jsx identifier
+23:40:25.868     ,-[[36;1;4m/vercel/path0/app/(dashboard)/test-user/page.tsx[0m:20:1]
+23:40:25.869  [2m20[0m |     .single();
+23:40:25.869  [2m21[0m | 
+23:40:25.869  [2m22[0m |   return (
+23:40:25.869  [2m23[0m |     <div className="p-8">
+23:40:25.869     : [31;1m     ^^^[0m
+23:40:25.870  [2m24[0m |       <h1 className=
+23:40:25.870     `----
+23:40:25.870 
+23:40:25.870 Caused by:
+23:40:25.870     Syntax Error
+23:40:25.870 
+23:40:25.871 Import trace for requested module:
+23:40:25.871 ./app/(dashboard)/test-user/page.tsx
+23:40:25.871 
+23:40:25.880 
+23:40:25.881 > Build failed because of webpack errors
+23:40:25.908 Error: Command "npm run build" exited with 1

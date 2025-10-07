@@ -58,17 +58,7 @@ export default async function DashboardLayout({
         userName={profile?.name}
       />
       <div className="lg:pl-64">
-        <Header
-          user={
-            profile
-              ? {
-                  name: profile.name,
-                  email: user.email || '',
-                  role: profile.role,
-                }
-              : undefined
-          }
-        />
+        <Header />
         <main className="p-6">{children}</main>
       </div>
       <SupabaseConnectionStatus />
