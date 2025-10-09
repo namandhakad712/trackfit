@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSupabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -12,7 +12,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
-  const supabase = useSupabase();
+  const supabase = createClient();
 
   useEffect(() => {
     const checkAdminStatus = async () => {

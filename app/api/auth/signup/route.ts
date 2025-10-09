@@ -56,14 +56,14 @@ export async function POST(request: Request) {
         // Only insert if the user doesn't already exist
         const result = await serviceRoleSupabase
           .from('users')
-          .insert({
+          .insert([{
             id: data.user.id,
             email: validatedData.email,
             name: validatedData.name,
             role: validatedData.role,
             depot_location: validatedData.depot_location || null,
             phone: validatedData.phone || null,
-          });
+          }]);
         
         insertError = result.error;
       }
@@ -82,14 +82,14 @@ export async function POST(request: Request) {
         // Only insert if the user doesn't already exist
         const result = await supabase
           .from('users')
-          .insert({
+          .insert([{
             id: data.user.id,
             email: validatedData.email,
             name: validatedData.name,
             role: validatedData.role,
             depot_location: validatedData.depot_location || null,
             phone: validatedData.phone || null,
-          });
+          }]);
         
         insertError = result.error;
       }

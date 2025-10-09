@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AdminInspectionLogViewer } from './AdminInspectionLogViewer';
-import { useSupabase } from '@/lib/supabase/client';
+import { createClient } from '@/lib/supabase/client';
 
 interface AdminInspectionLog {
   id: string;
@@ -44,7 +44,7 @@ interface AdminInspectionLog {
 }
 
 export function AdminInspectionDashboard() {
-  const supabase = useSupabase();
+  const supabase = createClient();
   const [logs, setLogs] = useState<AdminInspectionLog[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<AdminInspectionLog[]>([]);
   const [loading, setLoading] = useState(true);

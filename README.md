@@ -1,112 +1,203 @@
-# RailTrack QR - AI-Powered Fitting Management System
+# 🚂 RailTrack QR - Railway Fitting Management System
 
-Track 23.5 crore railway track fittings with QR codes and AI analytics for Indian Railways.
+A comprehensive AI-powered QR code-based fitting management system for Indian Railways, built with Next.js, Supabase, and TypeScript.
 
-## Tech Stack
+## 🌟 Features
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **UI Components**: shadcn/ui
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **QR Code**: qrcode (generation), html5-qrcode (scanning)
+### Role-Based Access Control
+- **Inspector**: Scan QR codes, log inspections, view personal inspection history
+- **Depot Manager**: Manage fittings, view depot-specific data, handle alerts
+- **Admin**: Full system access, user management, vendor analytics, system settings
+
+### Core Functionality
+- 📱 **QR Code Management**: Generate and scan QR codes for railway fittings
+- 🔍 **Inspection Logging**: Record inspections with GPS, images, and detailed notes
+- 📊 **Real-time Analytics**: Dashboard with role-specific metrics and insights
+- 🚨 **Smart Alerts**: AI-powered alerts for warranty expiry, quality issues, and failures
+- 📈 **Vendor Performance**: Track and analyze vendor quality scores
+- 🔐 **Secure Authentication**: Supabase Auth with row-level security
+- 🌍 **GPS Integration**: Location tracking for inspections
+- 📸 **Image Upload**: Capture and store inspection photos
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
+- **Storage**: Supabase Storage
+- **UI Components**: Radix UI + Tailwind CSS
+- **Forms**: React Hook Form + Zod
 - **Charts**: Recharts
-- **Deployment**: Vercel
+- **QR Codes**: html5-qrcode, qrcode
 
-## Getting Started
+## 📋 Prerequisites
 
-### Prerequisites
+- Node.js 18+ 
+- npm or yarn
+- Supabase account
+- Git
 
-- Node.js 18+ and npm
-- Supabase account (already configured)
+## 🚀 Getting Started
 
-### Installation
+### 1. Clone the Repository
 
-1. Install dependencies:
+```bash
+git clone https://github.com/yourusername/railtrack-qr.git
+cd railtrack-qr
+```
+
+### 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
-2. Environment variables are already configured in `.env.local`:
-```
-NEXT_PUBLIC_SUPABASE_URL=https://vtcsqfovdqevbazuxpcr.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-key>
+### 3. Environment Setup
+
+Create a `.env.local` file in the root directory:
+
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+
+# App Configuration
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-3. Run the development server:
+### 4. Database Setup
+
+Run the Supabase migrations:
+
+```bash
+# Install Supabase CLI if not already installed
+npm install -g supabase
+
+# Link to your Supabase project
+npx supabase link --project-ref your-project-ref
+
+# Push migrations
+npx supabase db push
+```
+
+### 5. Run Development Server
+
 ```bash
 npm run dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 railtrack-qr/
-├── app/                      # Next.js App Router
-│   ├── (auth)/              # Authentication routes
-│   │   ├── login/
-│   │   └── signup/
-│   ├── (dashboard)/         # Dashboard routes
-│   │   ├── dashboard/       # Main dashboard
-│   │   ├── fittings/        # Fitting management
-│   │   ├── inspections/     # Inspection logging
-│   │   ├── scan/            # QR scanner
-│   │   ├── alerts/          # AI alerts
-│   │   └── vendors/         # Vendor analytics
-│   └── api/                 # API routes
-├── components/
-│   └── ui/                  # shadcn/ui components
-├── lib/
-│   ├── supabase/           # Supabase clients
-│   ├── ai/                 # AI alert engine (to be implemented)
-│   └── utils/              # Utility functions
-└── types/                   # TypeScript types
-
+├── app/                          # Next.js app directory
+│   ├── (auth)/                   # Authentication pages
+│   ├── (dashboard)/              # Protected dashboard pages
+│   └── api/                      # API routes
+├── components/                   # React components
+│   ├── dashboard/                # Dashboard-specific components
+│   ├── settings/                 # Settings components
+│   ├── ui/                       # Reusable UI components
+│   └── users/                    # User management components
+├── lib/                          # Utility functions
+│   ├── ai/                       # AI/ML utilities
+│   ├── permissions/              # Role-based access control
+│   ├── supabase/                 # Supabase clients
+│   ├── utils/                    # Helper functions
+│   └── validations/              # Zod schemas
+├── supabase/                     # Database migrations
+│   └── migrations/               # SQL migration files
+├── types/                        # TypeScript type definitions
+└── public/                       # Static assets
 ```
 
-## Features (Implementation Progress)
+## 🔑 Default User Roles
 
-- [x] Task 1: Project Setup and Configuration
-- [x] Task 2: Database Schema and Supabase Configuration
-- [x] Task 3: Authentication System
-- [x] Task 4: Core UI Components and Layout
-- [x] Task 5: QR Code Generation System
-- [x] Task 6: Fitting Management Features
-- [x] Task 7: QR Code Scanning System
-- [x] Task 8: Inspection Logging System
-- [ ] Task 9: AI Alert Engine
-- [ ] Task 10: Vendor Management System
-- [ ] Task 11: Mock UDM/TMS Integration
-- [ ] Task 12: Dashboard and Analytics
+After setting up the database, you'll need to create users with appropriate roles:
 
-## Database Schema
+- **inspector**: Can scan QR codes and log inspections
+- **depot_manager**: Can manage fittings and view depot data
+- **admin**: Full system access
 
-The database schema includes:
-- **users**: User authentication and roles
-- **fittings**: Track fitting inventory
-- **inspections**: Inspection records with GPS and images
-- **vendors**: Vendor quality metrics
-- **alerts**: AI-generated alerts
-- **sync_logs**: UDM/TMS sync history
+## 🎯 Key Features by Role
 
-See `.kiro/specs/railway-qr-tracking/design.md` for detailed schema.
+### Inspector Dashboard
+- Personal inspection statistics
+- Recent inspection history
+- Quick QR scan access
+- Pass/fail rate tracking
 
-## Development
+### Depot Manager Dashboard
+- Depot-specific fitting inventory
+- Inspection overview
+- Active alerts management
+- Warranty expiration tracking
 
-### Available Scripts
+### Admin Dashboard
+- System-wide analytics
+- User management
+- Vendor performance metrics
+- Depot comparison
+- System settings
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+## 🔒 Security Features
 
-### Next Steps
+- Row-Level Security (RLS) policies
+- Role-based route protection
+- API endpoint authorization
+- Secure file uploads
+- Session management
+- Audit logging (coming soon)
 
-1. Set up database schema in Supabase (Task 2)
-2. Implement authentication (Task 3)
-3. Build core UI components (Task 4)
-4. Continue with remaining tasks as per implementation plan
+## 📊 Database Schema
 
-## License
+Key tables:
+- `users` - User profiles with roles
+- `fittings` - Railway fitting records
+- `inspections` - Inspection logs
+- `vendors` - Vendor information
+- `alerts` - System alerts
+- `settings` - System configuration
 
-MIT
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Indian Railways for the use case
+- Supabase for the backend infrastructure
+- Next.js team for the amazing framework
+- Radix UI for accessible components
+
+## 📧 Contact
+
+For questions or support, please open an issue on GitHub.
+
+## 🗺️ Roadmap
+
+- [ ] Mobile app (React Native)
+- [ ] Offline mode support
+- [ ] Advanced analytics dashboard
+- [ ] Integration with UDM/TMS systems
+- [ ] Predictive maintenance AI
+- [ ] Multi-language support
+- [ ] Export reports (PDF/Excel)
+
+---
+
+Built with ❤️ for Indian Railways
