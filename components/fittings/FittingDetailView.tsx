@@ -14,7 +14,8 @@ import {
   Tag,
   Wrench,
   Eye,
-  User
+  User,
+  ImageIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AdminInspectionLogViewer } from '@/components/admin/AdminInspectionLogViewer';

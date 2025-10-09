@@ -194,7 +194,7 @@ export function InspectionForm({ fittingId, onSuccess, onError }: InspectionForm
           <OlaMapLocationSelector 
             onLocationSelect={handleLocationSelect}
             initialLocation={watch('gps_latitude') !== undefined && watch('gps_longitude') !== undefined 
-              ? { latitude: watch('gps_latitude'), longitude: watch('gps_longitude') } 
+              ? { latitude: watch('gps_latitude')!, longitude: watch('gps_longitude')! } 
               : undefined}
             disabled={isSubmitting}
           />
