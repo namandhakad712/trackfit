@@ -31,7 +31,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
           .eq('id', user.id)
           .single();
 
-        if (error || !userProfile || userProfile.role !== 'admin') {
+        if (error || !userProfile || (userProfile as any).role !== 'admin') {
           router.push('/unauthorized');
           return;
         }

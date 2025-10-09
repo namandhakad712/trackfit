@@ -1,7 +1,7 @@
 'use client';
 
 import { AdminGuard } from '@/components/admin/AdminGuard';
-import { MapOverlaysSettings } from '@/components/admin/settings/MapOverlaysSettings';
+// import { MapOverlaysSettings } from '@/components/admin/settings/MapOverlaysSettings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Settings, Map, Users, Bell } from 'lucide-react';
@@ -38,7 +38,14 @@ export default function AdminSettingsPage() {
           </TabsList>
 
           <TabsContent value="overlays">
-            <MapOverlaysSettings />
+            <Card>
+              <CardHeader>
+                <CardTitle>Map Overlays</CardTitle>
+                <CardDescription>
+                  Map overlay feature coming soon
+                </CardDescription>
+              </CardHeader>
+            </Card>
           </TabsContent>
 
           <TabsContent value="general">

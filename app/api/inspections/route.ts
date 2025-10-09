@@ -206,7 +206,7 @@ export async function POST(request: NextRequest) {
           gps_latitude: validatedData.gps_latitude || null,
           gps_longitude: validatedData.gps_longitude || null,
           images: imageUrls.length > 0 ? imageUrls : null,
-        })
+        } as any)
         .select()
         .single();
     } else {
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
           gps_latitude: validatedData.gps_latitude || null,
           gps_longitude: validatedData.gps_longitude || null,
           images: imageUrls.length > 0 ? imageUrls : null,
-        })
+        } as any)
         .select()
         .single();
     }

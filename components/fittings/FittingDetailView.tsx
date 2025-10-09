@@ -13,14 +13,15 @@ import {
   Hash,
   Tag,
   Wrench,
-  Eye
+  Eye,
+  User
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { AdminInspectionLogViewer } from '@/components/admin/AdminInspectionLogViewer';
 
 // Dynamically import the map component to avoid SSR issues
 const OlaMapWithNoSSR = dynamic(
-  () => import('@/components/maps/OlaMapLocationSelector'),
+  () => import('@/components/maps/OlaMapLocationSelector').then(mod => ({ default: mod.OlaMapLocationSelector })),
   { ssr: false }
 );
 

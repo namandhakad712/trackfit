@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
         role,
         depot_location: depot_location || null,
         phone: phone || null,
-      })
+      } as any)
       .select()
       .single();
 

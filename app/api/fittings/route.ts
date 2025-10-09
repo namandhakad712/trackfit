@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
           current_location: currentLocation,
           status: 'active',
           created_by: user.id,
-        })
+        } as any)
         .select()
         .single();
     } else {
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
           current_location: currentLocation,
           status: 'active',
           created_by: user.id,
-        })
+        } as any)
         .select()
         .single();
     }

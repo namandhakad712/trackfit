@@ -19,7 +19,7 @@ import {
   Tag
 } from 'lucide-react';
 import { format } from 'date-fns';
-import { OlaMapLocationSelector } from './OlaMapLocationSelector';
+import { OlaMapLocationSelector } from '../maps/OlaMapLocationSelector';
 
 interface InspectionDetails {
   id: string;
