@@ -1,10 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { inspectionSchema } from '@/lib/validations/inspection';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { 
+  getAuthenticatedUser,
+  unauthorizedResponse 
+} from '@/lib/permissions/api';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    // Get authenticated user with role
+    const user = await getAuthenticatedUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const { searchParams } = new URL(request.url);
     const fitting_id = searchParams.get('fitting_id');
     const inspector_id = searchParams.get('inspector_id');
@@ -24,10 +34,20 @@ export async function GET(request: Request) {
         .select(`
           *,
           inspector:users!inspections_inspector_id_fkey(name, email),
-          fitting:fittings(qr_code, part_type, manufacturer)
+          fitting:fittings(qr_code, part_type, manufacturer, current_location)
         `);
 
-      // Apply filters
+      // Apply role-based filtering
+      if (user.role === 'inspector') {
+        // Inspectors only see their own inspections
+        query = query.eq('inspector_id', user.id);
+      } else if (user.role === 'depot_manager' && user.depot_location) {
+        // Depot managers only see inspections for fittings in their depot
+        query = query.eq('fittings.current_location', user.depot_location);
+      }
+      // Admins see all inspections (no additional filter)
+
+      // Apply additional filters
       if (fitting_id) {
         query = query.eq('fitting_id', fitting_id);
       }
@@ -59,10 +79,17 @@ export async function GET(request: Request) {
         .from('inspections')
         .select(`
           *,
-          fitting:fittings(qr_code, part_type, manufacturer)
+          fitting:fittings(qr_code, part_type, manufacturer, current_location)
         `);
 
-      // Apply filters
+      // Apply role-based filtering
+      if (user.role === 'inspector') {
+        query = query.eq('inspector_id', user.id);
+      } else if (user.role === 'depot_manager' && user.depot_location) {
+        query = query.eq('fittings.current_location', user.depot_location);
+      }
+
+      // Apply additional filters
       if (fitting_id) {
         query = query.eq('fitting_id', fitting_id);
       }
@@ -103,8 +130,14 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user with role (all roles can create inspections)
+    const user = await getAuthenticatedUser(request);
+    if (!user) {
+      return unauthorizedResponse();
+    }
+
     const formData = await request.formData();
 
     // Extract form fields
@@ -126,15 +159,6 @@ export async function POST(request: Request) {
     });
 
     const supabase = await createClient();
-
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
 
     // Upload images to Supabase Storage
     const imageUrls: string[] = [];

@@ -1,9 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { calculateVendorQuality } from '@/lib/ai/vendorScoring';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { 
+  validateApiPermission,
+  forbiddenResponse 
+} from '@/lib/permissions/api';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    // Validate user has admin permission
+    const validation = await validateApiPermission(request, ['admin']);
+    
+    if (!validation.authorized) {
+      return forbiddenResponse(validation.error || 'Admin access required');
+    }
+
     const supabase = await createClient();
 
     // Fetch all vendors

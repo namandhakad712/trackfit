@@ -493,3 +493,274 @@ CREATE TABLE audit_logs (
 );
 ```
 
+
+## Error Handling
+
+### Permission Denied Scenarios
+
+1. **Route Access Denied**
+   - Middleware redirects to `/unauthorized`
+   - User sees clear message with their current role
+   - Option to return to dashboard or contact admin
+
+2. **API Permission Denied**
+   - Return 403 Forbidden status
+   - Include error message: "Insufficient permissions"
+   - Log attempt in audit_logs table
+
+3. **Data Not Found Due to Filtering**
+   - Return empty array/null
+   - Display "No data available" message in UI
+   - Don't reveal existence of filtered data
+
+4. **Role Fetch Failure**
+   - Fallback to most restrictive role (inspector)
+   - Log error for investigation
+   - Display warning banner to user
+
+### Error Response Format
+
+```typescript
+interface ApiError {
+  error: string;
+  code: 'UNAUTHORIZED' | 'FORBIDDEN' | 'NOT_FOUND' | 'SERVER_ERROR';
+  message: string;
+  details?: any;
+}
+```
+
+## Testing Strategy
+
+### Unit Tests
+
+1. **Permission Functions**
+   - Test `canAccessRoute()` for all role combinations
+   - Test `getNavigationItems()` returns correct items per role
+   - Test `validateApiPermission()` with various scenarios
+
+2. **Data Filtering**
+   - Test depot_manager sees only their depot data
+   - Test inspector sees only their inspections
+   - Test admin sees all data
+
+3. **Navigation Filtering**
+   - Test each role sees correct menu items
+   - Test navigation items link to correct routes
+
+### Integration Tests
+
+1. **Middleware Protection**
+   - Test authenticated users can access allowed routes
+   - Test users are redirected when accessing forbidden routes
+   - Test unauthenticated users are redirected to login
+
+2. **API Endpoint Protection**
+   - Test each endpoint with different roles
+   - Test 403 responses for unauthorized access
+   - Test data filtering in responses
+
+3. **Dashboard Rendering**
+   - Test correct dashboard renders for each role
+   - Test dashboard widgets show filtered data
+   - Test quick actions are role-appropriate
+
+### End-to-End Tests
+
+1. **Inspector Workflow**
+   - Login as inspector
+   - Verify dashboard shows only inspection stats
+   - Verify can scan QR and create inspection
+   - Verify cannot access fittings, vendors, settings
+
+2. **Depot Manager Workflow**
+   - Login as depot manager
+   - Verify dashboard shows depot-specific data
+   - Verify can manage fittings for their depot
+   - Verify cannot access vendors, users, settings
+
+3. **Admin Workflow**
+   - Login as admin
+   - Verify dashboard shows system-wide data
+   - Verify can access all features
+   - Verify can manage users and settings
+
+
+## Security Considerations
+
+### Defense in Depth
+
+1. **Middleware Layer**
+   - First line of defense
+   - Validates authentication and role
+   - Redirects unauthorized access attempts
+   - Prevents route access before page load
+
+2. **Server Component Layer**
+   - Validates user role in layout components
+   - Fetches user profile securely
+   - Passes role to client components safely
+
+3. **API Layer**
+   - Validates every API request
+   - Checks user authentication
+   - Verifies role permissions
+   - Applies data filtering
+
+4. **Client Layer**
+   - Hides UI elements based on role
+   - Provides better UX
+   - NOT relied upon for security
+
+### Session Management
+
+- User role stored in database, not in JWT
+- Role fetched on each request to prevent stale data
+- Session invalidated when role changes
+- Audit log tracks role changes
+
+### Data Filtering
+
+- Applied at database query level
+- Never rely on client-side filtering
+- Use Supabase RLS policies as additional layer
+- Validate depot_location exists before filtering
+
+### Audit Logging
+
+Log the following events:
+- Unauthorized access attempts
+- Role changes
+- User creation/deactivation
+- Settings modifications
+- Failed permission checks
+
+### Rate Limiting
+
+Implement rate limiting on sensitive endpoints:
+- User management endpoints: 10 requests/minute
+- Settings endpoints: 20 requests/minute
+- Authentication endpoints: 5 requests/minute
+
+## Performance Considerations
+
+### Caching Strategy
+
+1. **User Role Caching**
+   - Cache user role in server component for request duration
+   - Invalidate on role change
+   - Don't cache across requests
+
+2. **Navigation Items**
+   - Compute once per page load
+   - Memoize in client component
+   - Recompute on role change
+
+3. **Dashboard Metrics**
+   - Cache for 5 minutes
+   - Provide manual refresh option
+   - Use stale-while-revalidate pattern
+
+### Database Optimization
+
+1. **Indexes**
+   - Add index on `users.role`
+   - Add index on `fittings.current_location`
+   - Add index on `inspections.inspector_id`
+
+2. **Query Optimization**
+   - Use select() to fetch only needed fields
+   - Avoid N+1 queries with proper joins
+   - Use count() for metrics instead of fetching all records
+
+### Bundle Size
+
+- Code-split dashboard components by role
+- Lazy load admin-only features
+- Tree-shake unused permissions code
+
+
+## Migration Strategy
+
+### Phase 1: Foundation (No Breaking Changes)
+1. Create permission utilities (`lib/permissions/`)
+2. Create new API endpoints (`/api/user/profile`, `/api/users`)
+3. Add unauthorized page
+4. Create role-specific dashboard components
+5. Update middleware with role checks (log only, don't block)
+
+### Phase 2: Dashboard Updates
+1. Update main dashboard page to render role-specific components
+2. Update dashboard metrics API with role-based filtering
+3. Test with existing users
+
+### Phase 3: Navigation & Route Protection
+1. Update Sidebar component with role-based filtering
+2. Enable middleware blocking for unauthorized routes
+3. Update all API endpoints with permission checks
+
+### Phase 4: Admin Features
+1. Create users management page
+2. Create settings page
+3. Add audit logging
+
+### Phase 5: Testing & Refinement
+1. Comprehensive testing with all roles
+2. Performance optimization
+3. Security audit
+4. Documentation updates
+
+### Rollback Plan
+
+If issues arise:
+1. Disable middleware blocking (revert to logging only)
+2. Revert dashboard to original unified version
+3. Keep permission utilities for future use
+4. Investigate and fix issues
+5. Re-deploy with fixes
+
+## Deployment Checklist
+
+- [ ] Database migrations applied (settings, audit_logs tables)
+- [ ] Environment variables configured
+- [ ] All existing users have valid roles assigned
+- [ ] Depot managers have depot_location assigned
+- [ ] Permission utilities tested
+- [ ] Middleware tested with all roles
+- [ ] API endpoints tested with all roles
+- [ ] Dashboard components tested with all roles
+- [ ] Navigation tested with all roles
+- [ ] Unauthorized page tested
+- [ ] User management tested (admin only)
+- [ ] Settings page tested (admin only)
+- [ ] Audit logging verified
+- [ ] Performance benchmarks met
+- [ ] Security review completed
+- [ ] Documentation updated
+- [ ] Training materials prepared for users
+
+## Future Enhancements
+
+1. **Fine-Grained Permissions**
+   - Move from role-based to permission-based system
+   - Allow custom permission sets per user
+   - Support permission inheritance
+
+2. **Multi-Depot Support**
+   - Allow depot managers to manage multiple depots
+   - Add depot switching UI
+   - Support depot hierarchies
+
+3. **Temporary Access**
+   - Time-limited role elevation
+   - Temporary admin access for support
+   - Automatic role reversion
+
+4. **Advanced Audit Logging**
+   - Real-time audit log viewer
+   - Anomaly detection
+   - Compliance reporting
+
+5. **Role Templates**
+   - Predefined role configurations
+   - Custom role creation
+   - Role cloning

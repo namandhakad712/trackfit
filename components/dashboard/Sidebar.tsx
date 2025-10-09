@@ -16,6 +16,7 @@ import {
   Shield,
   Warehouse,
   ClipboardCheck,
+  Settings,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -34,22 +35,28 @@ const navigation = [
     roles: ['depot_manager', 'inspector', 'admin'],
   },
   {
+    name: 'Scan QR',
+    href: '/scan',
+    icon: ScanLine,
+    roles: ['inspector', 'depot_manager', 'admin'],
+  },
+  {
+    name: 'My Inspections',
+    href: '/inspections',
+    icon: ClipboardCheck,
+    roles: ['inspector'],
+  },
+  {
     name: 'Fittings',
     href: '/fittings',
     icon: Package,
-    roles: ['depot_manager', 'inspector', 'admin'],
+    roles: ['depot_manager', 'admin'],
   },
   {
     name: 'Inspections',
     href: '/inspections',
     icon: ClipboardList,
-    roles: ['depot_manager', 'inspector', 'admin'],
-  },
-  {
-    name: 'Scan QR',
-    href: '/scan',
-    icon: ScanLine,
-    roles: ['inspector', 'depot_manager', 'admin'],
+    roles: ['depot_manager', 'admin'],
   },
   {
     name: 'Alerts',
@@ -60,7 +67,19 @@ const navigation = [
   {
     name: 'Vendors',
     href: '/vendors',
+    icon: Warehouse,
+    roles: ['admin'],
+  },
+  {
+    name: 'Users',
+    href: '/users',
     icon: Users,
+    roles: ['admin'],
+  },
+  {
+    name: 'Settings',
+    href: '/settings',
+    icon: Settings,
     roles: ['admin'],
   },
 ];

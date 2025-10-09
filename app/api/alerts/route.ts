@@ -1,8 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { 
+  validateApiPermission,
+  forbiddenResponse 
+} from '@/lib/permissions/api';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    // Validate user has permission to view alerts (depot_manager and admin only)
+    const validation = await validateApiPermission(request, ['depot_manager', 'admin']);
+    
+    if (!validation.authorized) {
+      return forbiddenResponse(validation.error);
+    }
+
+    const user = validation.user!;
     const { searchParams } = new URL(request.url);
     const resolved = searchParams.get('resolved');
     const severity = searchParams.get('severity');
@@ -17,6 +29,12 @@ export async function GET(request: Request) {
         *,
         fitting:fittings(qr_code, part_type, manufacturer, current_location)
       `);
+
+    // Apply depot-based filtering for depot managers
+    if (user.role === 'depot_manager' && user.depot_location) {
+      query = query.eq('fittings.current_location', user.depot_location);
+    }
+    // Admins see all alerts (no additional filter)
 
     // Apply filters
     if (resolved !== null) {

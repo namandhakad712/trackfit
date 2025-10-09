@@ -2,11 +2,25 @@ import { createClient } from '@/lib/supabase/server';
 import { createServiceRoleClient } from '@/lib/supabase/service-role';
 import { fittingSchema } from '@/lib/validations/fitting';
 import { generateQRCode } from '@/lib/utils/qrGenerator';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { addMonths } from 'date-fns';
+import { 
+  validateApiPermission, 
+  getAuthenticatedUser,
+  forbiddenResponse,
+  unauthorizedResponse 
+} from '@/lib/permissions/api';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
+    // Validate user has permission to view fittings
+    const validation = await validateApiPermission(request, ['depot_manager', 'admin']);
+    
+    if (!validation.authorized) {
+      return forbiddenResponse(validation.error);
+    }
+
+    const user = validation.user!;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '50');
@@ -21,6 +35,11 @@ export async function GET(request: Request) {
     let query = supabase
       .from('fittings')
       .select('*', { count: 'exact' });
+
+    // Apply depot-based filtering for depot managers
+    if (user.role === 'depot_manager' && user.depot_location) {
+      query = query.eq('current_location', user.depot_location);
+    }
 
     // Apply filters
     if (part_type) {
@@ -66,8 +85,16 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    // Validate user has permission to create fittings
+    const validation = await validateApiPermission(request, ['depot_manager', 'admin']);
+    
+    if (!validation.authorized) {
+      return forbiddenResponse(validation.error);
+    }
+
+    const user = validation.user!;
     const body = await request.json();
 
     // Validate request body
@@ -75,50 +102,10 @@ export async function POST(request: Request) {
 
     const supabase = await createClient();
 
-    // Get current user
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // Verify that the user exists in the users table (required for the foreign key constraint)
-    const { data: userProfile, error: userError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('id', user.id)
-      .single();
-
-    if (userError || !userProfile) {
-      // For now, we'll allow this check to pass but in production, you'd want to be more strict
-      // This check is here to maintain foreign key constraints
-      const serviceRoleSupabase = createServiceRoleClient();
-      
-      if (serviceRoleSupabase) {
-        // Double check using service role client to ensure we're not missing anything due to RLS
-        const { data: serviceUserProfile, error: serviceUserError } = await serviceRoleSupabase
-          .from('users')
-          .select('id')
-          .eq('id', user.id)
-          .single();
-
-        if (serviceUserError || !serviceUserProfile) {
-          return NextResponse.json(
-            { error: 'User profile not found. Please contact administrator.' },
-            { status: 400 }
-          );
-        }
-      } else {
-        // If no service role, fall back to basic check
-        if (userError || !userProfile) {
-          return NextResponse.json(
-            { error: 'User profile not found. Please contact administrator.' },
-            { status: 400 }
-          );
-        }
-      }
+    // Auto-set current_location for depot managers to their depot
+    let currentLocation = validatedData.current_location;
+    if (user.role === 'depot_manager' && user.depot_location) {
+      currentLocation = user.depot_location;
     }
 
     // Generate unique QR code
@@ -164,7 +151,7 @@ export async function POST(request: Request) {
           warranty_months: validatedData.warranty_months,
           warranty_expiry: warrantyExpiry.toISOString().split('T')[0],
           quantity: validatedData.quantity,
-          current_location: validatedData.current_location,
+          current_location: currentLocation,
           status: 'active',
           created_by: user.id,
         })
@@ -184,7 +171,7 @@ export async function POST(request: Request) {
           warranty_months: validatedData.warranty_months,
           warranty_expiry: warrantyExpiry.toISOString().split('T')[0],
           quantity: validatedData.quantity,
-          current_location: validatedData.current_location,
+          current_location: currentLocation,
           status: 'active',
           created_by: user.id,
         })
