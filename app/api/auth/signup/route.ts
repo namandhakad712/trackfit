@@ -54,18 +54,18 @@ export async function POST(request: Request) {
 
       if (!existingUsers || existingUsers.length === 0) {
         // Only insert if the user doesn't already exist
-        const result = await serviceRoleSupabase
+        const { error } = await serviceRoleSupabase
           .from('users')
-          .insert([{
+          .insert({
             id: data.user.id,
             email: validatedData.email,
             name: validatedData.name,
             role: validatedData.role,
             depot_location: validatedData.depot_location || null,
             phone: validatedData.phone || null,
-          }]);
+          } as any);
         
-        insertError = result.error;
+        insertError = error;
       }
     } else {
       // Fall back to regular client if service role key is not available
@@ -80,18 +80,18 @@ export async function POST(request: Request) {
 
       if (!existingUsers || existingUsers.length === 0) {
         // Only insert if the user doesn't already exist
-        const result = await supabase
+        const { error } = await supabase
           .from('users')
-          .insert([{
+          .insert({
             id: data.user.id,
             email: validatedData.email,
             name: validatedData.name,
             role: validatedData.role,
             depot_location: validatedData.depot_location || null,
             phone: validatedData.phone || null,
-          }]);
+          } as any);
         
-        insertError = result.error;
+        insertError = error;
       }
     }
     
