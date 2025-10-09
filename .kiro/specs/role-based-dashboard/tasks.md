@@ -134,7 +134,10 @@
   - Return 403 for non-admin users
   - _Requirements: 8.6, 3.5_
 
-- [ ] 13. Create users management API
+- [x] 13. Create users management API
+
+
+
   - Implement `app/api/users/route.ts` with admin-only access
   - Add GET endpoint to list all users
   - Add POST endpoint to create new user
@@ -142,7 +145,10 @@
   - Add DELETE endpoint to deactivate user
   - _Requirements: 8.7, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7_
 
-- [ ] 14. Create users management page
+
+- [x] 14. Create users management page
+
+
   - Implement `app/(dashboard)/users/page.tsx` with admin-only access
   - Create `components/users/UserTable.tsx` to display all users
   - Create `components/users/AddUserDialog.tsx` for creating new users
@@ -150,14 +156,20 @@
   - Add user deactivation functionality
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8_
 
-- [ ] 15. Create settings management API
+- [x] 15. Create settings management API
+
+
+
   - Implement `app/api/settings/route.ts` with admin-only access
   - Add GET endpoint to fetch all settings
   - Add PUT endpoint to update settings
   - Create database migration for settings table
   - _Requirements: 10.6, 10.7_
 
-- [ ] 16. Create settings page
+- [x] 16. Create settings page
+
+
+
   - Implement `app/(dashboard)/settings/page.tsx` with admin-only access
   - Create tabs for General, Integrations, Notifications, Defaults
   - Create `components/settings/GeneralSettings.tsx`
@@ -167,6 +179,9 @@
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9_
 
 - [ ] 17. Create audit logging system
+
+
+
   - Create database migration for audit_logs table
   - Implement `lib/audit/logger.ts` utility for logging events
   - Add audit logging to middleware for unauthorized access attempts
